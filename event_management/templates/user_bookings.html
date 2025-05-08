@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Bookings - Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bookings-container {
+        padding: 4rem 0;
+    }
+    
+    .bookings-header {
+        margin-bottom: 2rem;
+    }
+    
+    .bookings-title {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .bookings-title:after {
+        content: '';
+        position: absolute;
+        width: 50px;
+        height: 3px;
+        background-color: var(--primary-color);
+        bottom: -10px;
+        left: 0;
+    }
+    
+    .booking-filters {
+        margin-bottom: 2rem;
+    }
+    
+    .filter-btn {
+        padding: 0.6rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-btn.active {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .booking-item {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+    
+    .booking-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .booking-header {
+        background-color: var(--dark-color);
+        color: white;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .booking-title {
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+    
+    .booking-status {
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+    
+    .badge-confirmed {
+        background-color: var(--success-color);
+        color: white;
+    }
+    
+    .badge-pending {
+        background-color: var(--warning-color);
+        color: white;
+    }
+    
+    .badge-cancelled {
+        background-color: var(--danger-color);
+        color: white;
+    }
+    
+    .badge-completed {
+        background-color: var(--info-color);
+        color: white;
+    }
+    
+    .booking-body {
+        padding: 1.5rem;
+    }
+    
+    .booking-info {
+        margin-bottom: 1.5rem;
+    }
+    
+    .booking-info-item {
+        display: flex;
+        margin-bottom: 0.75rem;
+    }
+    
+    .booking-info-item i {
+        color: var(--primary-color);
+        margin-right: 0.75rem;
+        width: 20px;
+        text-align: center;
+    }
+    
+    .booking-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .booking-action-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .booking-action-btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .empty-bookings {
+        text-align: center;
+        padding: 3rem;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .empty-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Animation */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in-up {
+        animation: fadeInUp 0.5s ease-out forwards;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bookings-container">
+    <div class="container">
+        <div class="bookings-header">
+            <h1 class="bookings-title animate__animated animate__fadeIn">My Bookings</h1>
+            <p class="text-muted animate__animated animate__fadeIn">Manage all your event bookings in one place</p>
+        </div>
+        
+        <div class="booking-filters animate__animated animate__fadeIn">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary filter-btn active" data-filter="all">
+                    <i class="fas fa-list me-2"></i> All
+                </button>
+                <button type="button" class="btn btn-outline-primary filter-btn" data-filter="upcoming">
+                    <i class="fas fa-calendar-alt me-2"></i> Upcoming
+                </button>
+                <button type="button" class="btn btn-outline-primary filter-btn" data-filter="past">
+                    <i class="fas fa-history me-2"></i> Past
+                </button>
+                <button type="button" class="btn btn-outline-primary filter-btn" data-filter="confirmed">
+                    <i class="fas fa-check-circle me-2"></i> Confirmed
+                </button>
+            </div>
+        </div>
+
+        <div class="booking-list">
+            {% if bookings %}
+                {% for booking in bookings %}
+                    <div class="booking-item fade-in-up" 
+                         style="animation-delay: {{ forloop.counter0|divisibleby:5 }}s;"
+                         data-date="{{ booking.event.date|date:'Y-m-d' }}"
+                         data-status="{{ booking.status }}">
+                        <div class="booking-header">
+                            <h4 class="booking-title">{{ booking.event.name }}</h4>
+                            <span class="booking-status badge-{{ booking.status|lower }}">
+                                {{ booking.status }}
+                            </span>
+                        </div>
+                        <div class="booking-body">
+                            <div class="booking-info">
+                                <div class="booking-info-item">
+                                    <i class="fas fa-calendar-alt"></i> 
+                                    <span>{{ booking.event.date|date:"Y-m-d H:i" }}</span>
+                                </div>
+                                <div class="booking-info-item">
+                                    <i class="fas fa-map-marker-alt"></i> 
+                                    <span>{{ booking.event.location }}</span>
+                                </div>
+                                {% if booking.notes %}
+                                    <div class="booking-info-item">
+                                        <i class="fas fa-comment"></i>
+                                        <span>Notes: {{ booking.notes }}</span>
+                                    </div>
+                                {% endif %}
+                                <div class="booking-info-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Booked on {{ booking.booking_date|date:"Y-m-d" }}</span>
+                                </div>
+                            </div>
+                            <div class="booking-actions">
+                                <a href="{% url 'event_detail' booking.event.id %}" 
+                                   class="btn btn-info booking-action-btn">
+                                    <i class="fas fa-info-circle me-1"></i> Event Details
+                                </a>
+                                {% if booking.event.date|date:'Y-m-d' > now|date:'Y-m-d' and booking.status != 'CANCELLED' %}
+                                <a href="#" class="btn btn-danger booking-action-btn cancel-booking" data-id="{{ booking.id }}">
+                                    <i class="fas fa-times-circle me-1"></i> Cancel Booking
+                                </a>
+                                {% endif %}
+                                {% if booking.status == 'CONFIRMED' and booking.event.date|date:'Y-m-d' < now|date:'Y-m-d' %}
+                                <a href="{% url 'submit_review' booking.event.id %}" class="btn btn-primary booking-action-btn">
+                                    <i class="fas fa-star me-1"></i> Write Review
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-bookings animate__animated animate__fadeIn">
+                    <div class="empty-icon">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                    <h3>No Bookings Found</h3>
+                    <p class="mb-4">You haven't made any bookings yet.</p>
+                    <a href="{% url 'home' %}" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i> Browse Available Events
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('.booking-filters button');
+    const today = new Date().toISOString().split('T')[0];
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filter = this.getAttribute('data-filter');
+            const bookings = document.querySelectorAll('.booking-item');
+            
+            bookings.forEach(booking => {
+                const bookingDate = booking.getAttribute('data-date');
+                const bookingStatus = booking.getAttribute('data-status');
+                
+                if (filter === 'all') {
+                    booking.style.display = 'block';
+                } else if (filter === 'upcoming' && bookingDate >= today) {
+                    booking.style.display = 'block';
+                } else if (filter === 'past' && bookingDate < today) {
+                    booking.style.display = 'block';
+                } else if (filter === 'confirmed' && bookingStatus === 'CONFIRMED') {
+                    booking.style.display = 'block';
+                } else {
+                    booking.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Cancel booking functionality
+    const cancelButtons = document.querySelectorAll('.cancel-booking');
+    cancelButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const bookingId = this.getAttribute('data-id');
+            
+            if (confirm('Are you sure you want to cancel this booking?')) {
+                // Here you would normally submit a form or make an AJAX request
+                console.log('Cancelling booking:', bookingId);
+                alert('Booking cancellation feature will be implemented soon.');
+            }
+        });
+    });
+    
+    // Animation for booking items
+    const bookingItems = document.querySelectorAll('.booking-item');
+    bookingItems.forEach((item, index) => {
+        setTimeout(() => {
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, 100 * index);
+    });
+});
+</script>
+{% endblock %}

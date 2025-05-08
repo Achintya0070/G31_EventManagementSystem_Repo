@@ -1,0 +1,202 @@
+<!-- templates/user_bookings.html -->
+
+{% extends "base.html" %}
+
+{% block title %}My Bookings - Event Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>My Bookings</h1>
+    
+    <div class="booking-filters mb-4">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-primary active" data-filter="all">All</button>
+            <button type="button" class="btn btn-outline-primary" data-filter="upcoming">Upcoming</button>
+            <button type="button" class="btn btn-outline-primary" data-filter="past">Past</button>
+        </div>
+    </div>
+
+    <div class="booking-list">
+        {% if bookings %}
+            {% for booking in bookings %}
+                <div class="booking-item card mb-3" 
+                     data-date="{{ booking.event.date.strftime('%Y-%m-%d') }}"
+                     data-status="{{ booking.status }}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h4 class="card-title">{{ booking.event.name }}</h4>
+                                <p class="card-text">
+                                    <i class="fas fa-calendar"></i> 
+                                    {{ booking.event.date.strftime('%Y-%m-%d %H:%M') }}
+                                </p>
+                                <p class="card-text">
+                                    <i class="fas fa-map-marker-alt"></i> 
+                                    {{ booking.event.location }}
+                                </p>
+                                {% if booking.notes %}
+                                    <p class="card-text">
+                                        <i class="fas fa-comment"></i>
+                                        Notes: {{ booking.notes }}
+                                    </p>
+                                {% endif %}
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        Booked on {{ booking.booking_date.strftime('%Y-%m-%d') }}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <div class="booking-status mb-3">
+                                    <span class="badge badge-{{ booking.status|lower }}">
+                                        {{ booking.status }}
+                                    </span>
+                                </div>
+                                <div class="booking-actions">
+                                    <a href="{{ url_for('event_detail', event_id=booking.event.id) }}" 
+                                       class="btn btn-info btn-sm">
+                                        View Event
+                                    </a>
+                                    {% if booking.status == 'confirmed' and booking.event.date > now %}
+                                        <button class="btn btn-danger btn-sm" 
+                                                onclick="cancelBooking({{ booking.id }})">
+                                            Cancel Booking
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                You haven't made any bookings yet. 
+                <a href="{{ url_for('index') }}">Browse available events</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const filterButtons = document.querySelectorAll('.booking-filters button');
+    const today = new Date().toISOString().split('T')[0];
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.getAttribute('data-filter');
+            const bookingItems = document.querySelectorAll('.booking-item');
+            
+            // Update active button state
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter bookings
+            bookingItems.forEach(item => {
+                const date = item.getAttribute('data-date');
+                const status = item.getAttribute('data-status');
+                
+                switch(filter) {
+                    case 'upcoming':
+                        item.style.display = date >= today ? 'block' : 'none';
+                        break;
+                    case 'past':
+                        item.style.display = date < today ? 'block' : 'none';
+                        break;
+                    default:
+                        item.style.display = 'block';
+                }
+            });
+        });
+    });
+});
+
+function cancelBooking(bookingId) {
+    if (confirm('Are you sure you want to cancel this booking?')) {
+        fetch(`/booking/${bookingId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error cancelling booking: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('An error occurred while cancelling the booking.');
+        });
+    }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.booking-filters {
+    margin-top: 2rem;
+}
+
+.booking-item {
+    transition: transform 0.3s ease;
+}
+
+.booking-item:hover {
+    transform: translateY(-5px);
+}
+
+.badge {
+    padding: 0.5em 1em;
+    font-size: 0.9em;
+}
+
+.badge-confirmed {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.badge-cancelled {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.badge-completed {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.booking-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.booking-actions .btn {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .col-md-4.text-right {
+        text-align: left !important;
+        margin-top: 1rem;
+    }
+    
+    .booking-actions {
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+    
+    .booking-actions .btn {
+        width: auto;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Register - Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .register-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1505236858219-8359eb29e329?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+        background-size: cover;
+        background-position: center;
+        padding: 3rem 0;
+    }
+    
+    .register-card {
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        max-width: 600px;
+        width: 100%;
+    }
+    
+    .register-header {
+        background-color: var(--dark-color);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .register-header h2 {
+        margin-bottom: 0;
+        font-weight: 700;
+    }
+    
+    .register-body {
+        padding: 2.5rem;
+    }
+    
+    .register-form .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .register-form label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--dark-color);
+    }
+    
+    .register-form input {
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        transition: all 0.3s ease;
+    }
+    
+    .register-form input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(255, 87, 34, 0.25);
+    }
+    
+    .register-btn {
+        padding: 0.8rem 1rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .register-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .register-footer {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        text-align: center;
+        border-top: 1px solid #eee;
+    }
+    
+    .register-footer p {
+        margin-bottom: 0;
+    }
+    
+    .register-footer a {
+        color: var(--primary-color);
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .register-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    .register-icon {
+        font-size: 4rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .invalid-feedback {
+        color: var(--danger-color);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    
+    /* Password strength indicator */
+    .password-strength {
+        height: 5px;
+        margin-top: 0.5rem;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .strength-weak {
+        background-color: var(--danger-color);
+        width: 30%;
+    }
+    
+    .strength-medium {
+        background-color: var(--warning-color);
+        width: 60%;
+    }
+    
+    .strength-strong {
+        background-color: var(--success-color);
+        width: 100%;
+    }
+    
+    /* Animation */
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    .float-animation {
+        animation: float 3s ease-in-out infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="register-card animate__animated animate__fadeIn">
+                    <div class="register-header">
+                        <div class="register-icon float-animation">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h2>Create Account</h2>
+                        <p class="mb-0">Join EventHub and start exploring amazing events</p>
+                    </div>
+                    <div class="register-body">
+                        <form method="POST" id="register-form" class="register-form">
+                            {% csrf_token %}
+                            {% if form.errors %}
+                                <div class="alert alert-danger animate__animated animate__shakeX">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <ul class="mb-0">
+                                    {% for field, errors in form.errors.items %}
+                                        {% for error in errors %}
+                                            <li>{{ field }}: {{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+
+                            <div class="row">
+                                {% for field in form %}
+                                    <div class="col-md-{% if field.name == 'username' or field.name == 'email' %}12{% else %}6{% endif %} mb-3">
+                                        <div class="form-group">
+                                            <label for="{{ field.id_for_label }}">
+                                                {% if field.name == 'username' %}
+                                                    <i class="fas fa-user me-2"></i>
+                                                {% elif field.name == 'email' %}
+                                                    <i class="fas fa-envelope me-2"></i>
+                                                {% elif field.name == 'password1' %}
+                                                    <i class="fas fa-lock me-2"></i>
+                                                {% elif field.name == 'password2' %}
+                                                    <i class="fas fa-key me-2"></i>
+                                                {% endif %}
+                                                {{ field.label }}
+                                            </label>
+                                            {{ field }}
+                                            {% if field.help_text %}
+                                                <small class="form-text">{{ field.help_text }}</small>
+                                            {% endif %}
+                                            {% if field.errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ field.errors|join:", " }}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            {% if field.name == 'password1' %}
+                                                <div class="password-strength" id="password-strength"></div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="form-group mt-4">
+                                <button type="submit" class="btn btn-primary w-100 register-btn">
+                                    <i class="fas fa-user-plus me-2"></i>Register
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="register-footer">
+                        <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('register-form');
+        const password1Input = document.querySelector('input[name="password1"]');
+        const password2Input = document.querySelector('input[name="password2"]');
+        const passwordStrength = document.getElementById('password-strength');
+        
+        // Password strength checker
+        if (password1Input && passwordStrength) {
+            password1Input.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                
+                if (password.length >= 8) strength += 1;
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/[0-9]/.test(password)) strength += 1;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+                
+                passwordStrength.className = 'password-strength';
+                
+                if (password.length === 0) {
+                    passwordStrength.style.width = '0';
+                } else if (strength <= 2) {
+                    passwordStrength.classList.add('strength-weak');
+                } else if (strength === 3) {
+                    passwordStrength.classList.add('strength-medium');
+                } else {
+                    passwordStrength.classList.add('strength-strong');
+                }
+            });
+        }
+        
+        // Form validation
+        form.addEventListener('submit', function(e) {
+            if (password1Input.value !== password2Input.value) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+            return true;
+        });
+        
+        // Remove invalid class on input
+        const inputs = form.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+            });
+        });
+    });
+</script>
+{% endblock %}

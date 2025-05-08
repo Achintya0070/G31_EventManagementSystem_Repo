@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Event - Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .create-event-container {
+        padding: 4rem 0;
+    }
+    
+    .create-event-card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .create-event-header {
+        background-color: var(--dark-color);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .create-event-icon {
+        font-size: 4rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .create-event-body {
+        padding: 2.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--dark-color);
+    }
+    
+    .form-control {
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(255, 87, 34, 0.25);
+    }
+    
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    
+    .create-event-btn {
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .create-event-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .form-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-section-title {
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--dark-color);
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }
+    
+    .asteriskField {
+        color: var(--danger-color);
+        margin-left: 4px;
+    }
+    
+    .invalid-feedback {
+        display: block;
+        color: var(--danger-color);
+    }
+    
+    /* Animation */
+    @keyframes slideIn {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .slide-in {
+        animation: slideIn 0.5s ease-out forwards;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="create-event-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="create-event-card animate__animated animate__fadeIn">
+                    <div class="create-event-header">
+                        <div class="create-event-icon">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <h2>Create New Event</h2>
+                        <p class="mb-0">Share your event with the community</p>
+                    </div>
+                    <div class="create-event-body">
+                        <form method="POST" id="create-event-form" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {% if form.errors %}
+                                <div class="alert alert-danger animate__animated animate__shakeX">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    Please correct the errors below.
+                                </div>
+                            {% endif %}
+
+                            <div class="form-section slide-in" style="animation-delay: 0.1s;">
+                                <h4 class="form-section-title">Basic Information</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.name|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.location|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.date|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.capacity|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section slide-in" style="animation-delay: 0.2s;">
+                                <h4 class="form-section-title">Event Details</h4>
+                                {{ form.description|as_crispy_field }}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.price|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.source|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section slide-in" style="animation-delay: 0.3s;">
+                                <h4 class="form-section-title">Additional Options</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.category|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.image|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mt-4 text-center">
+                                <button type="submit" class="btn btn-primary create-event-btn">
+                                    <i class="fas fa-calendar-plus me-2"></i> Create Event
+                                </button>
+                                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary create-event-btn ms-2">
+                                    <i class="fas fa-times me-2"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set minimum date to today for the date field
+    const dateInput = document.querySelector('input[type="datetime-local"]');
+    if (dateInput) {
+        const today = new Date();
+        const localDateTime = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+                                .toISOString()
+                                .slice(0, 16);
+        dateInput.min = localDateTime;
+    }
+    
+    // Form validation
+    const form = document.getElementById('create-event-form');
+    form.addEventListener('submit', function(e) {
+        const capacityInput = document.querySelector('input[name="capacity"]');
+        const priceInput = document.querySelector('input[name="price"]');
+        
+        if (capacityInput && parseInt(capacityInput.value) < 1) {
+            e.preventDefault();
+            alert('Capacity must be at least 1');
+            capacityInput.focus();
+            return false;
+        }
+        
+        if (priceInput && parseFloat(priceInput.value) < 0) {
+            e.preventDefault();
+            alert('Price cannot be negative');
+            priceInput.focus();
+            return false;
+        }
+        
+        return true;
+    });
+    
+    // Animation for form sections
+    const formSections = document.querySelectorAll('.form-section');
+    formSections.forEach((section, index) => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(50px)';
+        
+        setTimeout(() => {
+            section.style.transition = 'all 0.5s ease-out';
+            section.style.opacity = '1';
+            section.style.transform = 'translateY(0)';
+        }, 100 * (index + 1));
+    });
+});
+</script>
+{% endblock %}

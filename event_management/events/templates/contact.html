@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Contact Us - Event Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-center">Contact Us</h2>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        <form method="POST" id="contact-form">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <div class="form-group mt-4">
+                                <button type="submit" class="btn btn-primary">Submit Query</button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Please <a href="{% url 'login' %}?next={{ request.path }}">login</a> to submit a query.
+                        </div>
+                    {% endif %}
+
+                    {% if user.is_authenticated and queries %}
+                        <div class="my-queries mt-5">
+                            <h3>Your Previous Queries</h3>
+                            {% for query in queries %}
+                                <div class="query-item card mb-3">
+                                    <div class="card-body">
+                                        <p class="query-content">{{ query.content }}</p>
+                                        {% if query.response %}
+                                            <div class="query-response bg-light p-3 mt-2 rounded">
+                                                <strong>Response:</strong>
+                                                <p class="mb-0">{{ query.response }}</p>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-muted">
+                                                <small>Awaiting response...</small>
+                                            </div>
+                                        {% endif %}
+                                        <div class="query-meta mt-2">
+                                            <small class="text-muted">
+                                                Submitted on {{ query.created_at|date:"Y-m-d H:i" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="contact-info card mt-4">
+                <div class="card-body">
+                    <h3>Other Ways to Contact Us</h3>
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="contact-method">
+                                <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
+                                <h4>Email</h4>
+                                <p>support@eventms.com</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="contact-method">
+                                <i class="fas fa-phone fa-2x text-primary mb-2"></i>
+                                <h4>Phone</h4>
+                                <p>+1 (555) 123-4567</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="contact-method">
+                                <i class="fas fa-map-marker-alt fa-2x text-primary mb-2"></i>
+                                <h4>Address</h4>
+                                <p>123 Event Street<br>City, State 12345</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.contact-method {
+    text-align: center;
+    padding: 1rem;
+}
+
+.contact-method i {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.query-item {
+    transition: transform 0.3s ease;
+}
+
+.query-item:hover {
+    transform: translateY(-5px);
+}
+
+.query-response {
+    border-left: 4px solid var(--primary-color);
+}
+
+.asteriskField {
+    color: red;
+    margin-left: 4px;
+}
+
+@media (max-width: 768px) {
+    .contact-method {
+        margin-bottom: 2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('contact-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const content = form.querySelector('textarea[name="content"]');
+                if (content && !content.value.trim()) {
+                    e.preventDefault();
+                    alert('Please enter your message');
+                    return false;
+                }
+                return true;
+            });
+        }
+    });
+</script>
+{% endblock %}

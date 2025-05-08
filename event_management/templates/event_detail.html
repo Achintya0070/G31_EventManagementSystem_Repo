@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ event.name }} - Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .event-header {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://source.unsplash.com/random/1200x600/?event');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 6rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+    
+    .event-header-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+    
+    .event-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .event-meta-header {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .event-meta-item {
+        display: flex;
+        align-items: center;
+    }
+    
+    .event-meta-item i {
+        font-size: 1.5rem;
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+    }
+    
+    .event-details {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        padding: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .event-description {
+        margin-bottom: 2rem;
+        line-height: 1.8;
+    }
+    
+    .booking-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .booking-form label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .reviews-section {
+        margin-top: 3rem;
+    }
+    
+    .review-item {
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .review-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .rating {
+        color: var(--warning-color);
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .review-content {
+        font-style: italic;
+        margin-bottom: 0.5rem;
+    }
+    
+    .average-rating {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--dark-color);
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        display: inline-block;
+    }
+    
+    .event-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .event-share {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #eee;
+    }
+    
+    .share-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .share-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .share-button:hover {
+        transform: translateY(-3px);
+    }
+    
+    .facebook {
+        background-color: #3b5998;
+    }
+    
+    .twitter {
+        background-color: #1da1f2;
+    }
+    
+    .linkedin {
+        background-color: #0077b5;
+    }
+    
+    .whatsapp {
+        background-color: #25d366;
+    }
+    
+    /* Animation for booking button */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Event Header -->
+<section class="event-header">
+    <div class="container">
+        <div class="event-header-content">
+            <h1 class="event-title animate__animated animate__fadeInDown">{{ event.name }}</h1>
+            <div class="event-meta-header animate__animated animate__fadeInUp">
+                <div class="event-meta-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>{{ event.date|date:"Y-m-d H:i" }}</span>
+                </div>
+                <div class="event-meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ event.location }}</span>
+                </div>
+                <div class="event-meta-item">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>{{ event.available_seats }}/{{ event.capacity }} seats available</span>
+                </div>
+                {% if event.price > 0 %}
+                <div class="event-meta-item">
+                    <i class="fas fa-tag"></i>
+                    <span>${{ event.price|floatformat:2 }}</span>
+                </div>
+                {% else %}
+                <div class="event-meta-item">
+                    <i class="fas fa-tag"></i>
+                    <span>Free Event</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <div class="row">
+        <!-- Event Details -->
+        <div class="col-lg-8">
+            <div class="event-details animate-on-scroll">
+                <h3 class="mb-4">About This Event</h3>
+                <div class="event-description">
+                    <p>{{ event.description }}</p>
+                </div>
+                
+                <div class="event-share">
+                    <h4>Share This Event</h4>
+                    <div class="share-buttons">
+                        <a href="#" class="share-button facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="share-button twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="share-button linkedin">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="share-button whatsapp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reviews Section -->
+            <div class="reviews-section mt-4">
+                <h3>Reviews</h3>
+                {% if reviews %}
+                    <div class="review-list">
+                        {% for review in reviews %}
+                            <div class="review-item card mb-3">
+                                <div class="card-body">
+                                    <div class="rating">
+                                        {% for _ in "12345"|slice:":review.rating" %}★{% endfor %}
+                                        {% for _ in "12345"|slice:"review.rating:" %}☆{% endfor %}
+                                    </div>
+                                    <p class="review-content">{{ review.content }}</p>
+                                    <small class="text-muted">
+                                        By {% if review.user %}{{ review.user.username }}{% else %}Anonymous{% endif %} on {{ review.created_at|date:"Y-m-d" }}
+                                    </small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No reviews yet. Be the first to review!</p>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                    <div class="review-form-section mt-4">
+                        <h4>Leave a Review</h4>
+                        <form action="{% url 'submit_review' event.id %}" method="POST" class="review-form">
+                            {% csrf_token %}
+                            {{ review_form.as_p }}
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Booking Sidebar -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 20px;">
+                {% if user.is_authenticated %}
+                    {% if event.available_seats > 0 and not user_has_booking %}
+                        <div class="booking-section animate-on-scroll">
+                            <h3 class="mb-4">Book This Event</h3>
+                            <form action="{% url 'book_event' event.id %}" method="POST" class="booking-form">
+                                {% csrf_token %}
+                                {{ booking_form.as_p }}
+                                <button type="submit" class="btn btn-primary w-100 pulse-animation">
+                                    <i class="fas fa-ticket-alt me-1"></i> Book Now
+                                </button>
+                            </form>
+                        </div>
+                    {% elif user_has_booking %}
+                        <div class="alert alert-info animate-on-scroll">
+                            <i class="fas fa-check-circle fa-2x mb-3"></i>
+                            <h4>You're Going!</h4>
+                            <p>You have already booked this event.</p>
+                            <a href="{% url 'user_bookings' %}" class="btn btn-info mt-2">
+                                <i class="fas fa-list me-1"></i> View My Bookings
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning animate-on-scroll">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                            <h4>Sold Out</h4>
+                            <p>Sorry, this event is fully booked.</p>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-info animate-on-scroll">
+                        <i class="fas fa-sign-in-alt fa-2x mb-3"></i>
+                        <h4>Login Required</h4>
+                        <p>Please login to book this event.</p>
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary mt-2">
+                            <i class="fas fa-sign-in-alt me-1"></i> Login Now
+                        </a>
+                    </div>
+                {% endif %}
+                
+                <!-- Event Location Map -->
+                <div class="card mt-4 animate-on-scroll">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i> Event Location</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <img src="https://maps.googleapis.com/maps/api/staticmap?center={{ event.location|urlencode }}&zoom=14&size=400x300&markers=color:red%7C{{ event.location|urlencode }}&key=YOUR_API_KEY" 
+                             alt="Event location map" class="img-fluid w-100">
+                    </div>
+                    <div class="card-footer">
+                        <p class="mb-0"><i class="fas fa-map-marker-alt me-2"></i> {{ event.location }}</p>
+                    </div>
+                </div>
+                
+                <!-- Organizer Info -->
+                <div class="card mt-4 animate-on-scroll">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i> Event Organizer</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://ui-avatars.com/api/?name=Event+Organizer&background=random" alt="Organizer" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">Event Organizer</h6>
+                                <p class="text-muted mb-0">Professional Event Management</p>
+                            </div>
+                        </div>
+                        <p class="mb-0">Contact: <a href="mailto:organizer@example.com">organizer@example.com</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation on scroll
+        const animateElements = document.querySelectorAll('.animate-on-scroll');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        animateElements.forEach(element => {
+            observer.observe(element);
+        });
+    });
+</script>
+{% endblock %}

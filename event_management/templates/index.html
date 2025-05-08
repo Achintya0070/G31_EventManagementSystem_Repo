@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Events - Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section Styles */
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 8rem 0;
+        margin-bottom: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+    
+    .hero-btn {
+        padding: 0.8rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .hero-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    
+    /* Featured Events Section */
+    .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 2.5rem;
+        font-weight: 700;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        width: 50px;
+        height: 3px;
+        background-color: var(--primary-color);
+        bottom: -10px;
+        left: 0;
+    }
+    
+    .event-card {
+        height: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .event-card .card-img-top {
+        height: 180px;
+        object-fit: cover;
+    }
+    
+    .event-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .event-card .card-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .event-meta {
+        margin-bottom: 1rem;
+    }
+    
+    .event-meta i {
+        color: var(--primary-color);
+        margin-right: 0.5rem;
+    }
+    
+    .event-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        font-weight: 600;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .event-price {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .event-capacity {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .capacity-bar {
+        flex-grow: 1;
+        height: 8px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+        margin: 0 10px;
+        overflow: hidden;
+    }
+    
+    .capacity-fill {
+        height: 100%;
+        background-color: var(--primary-color);
+        border-radius: 4px;
+    }
+    
+    /* Categories Section */
+    .categories-section {
+        background-color: #f8f9fa;
+        padding: 4rem 0;
+        margin: 4rem 0;
+    }
+    
+    .category-card {
+        text-align: center;
+        padding: 2rem;
+        border-radius: 10px;
+        background-color: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .category-icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Search Section */
+    .search-section {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-bottom: 3rem;
+    }
+    
+    .search-input {
+        border: none;
+        border-radius: 50px;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        font-size: 1.1rem;
+    }
+    
+    .search-input:focus {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+    
+    /* Animation for event cards */
+    @keyframes cardHover {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0); }
+    }
+    
+    .animate-card {
+        animation: cardHover 5s infinite;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .hero-section {
+            padding: 5rem 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center hero-content">
+                <h1 class="hero-title animate__animated animate__fadeInDown">Discover Amazing Events</h1>
+                <p class="hero-subtitle animate__animated animate__fadeInUp">Find and book the best events in your area</p>
+                <a href="#events" class="btn btn-primary hero-btn animate__animated animate__fadeInUp">Explore Events</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search Section -->
+<div class="container">
+    <div class="search-section animate-on-scroll">
+        <div class="row">
+            <div class="col-md-10 mx-auto">
+                <div class="input-group">
+                    <input type="text" id="event-search" class="form-control search-input" placeholder="Search for events...">
+                    <button class="btn btn-primary" type="button">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Categories Section -->
+<section class="categories-section">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="section-title mx-auto">Browse by Category</h2>
+                <p class="lead">Discover events that match your interests</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <div class="category-card animate-on-scroll">
+                    <div class="category-icon">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h4>Concerts</h4>
+                    <p>Live music performances</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="category-card animate-on-scroll">
+                    <div class="category-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h4>Workshops</h4>
+                    <p>Educational experiences</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="category-card animate-on-scroll">
+                    <div class="category-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h4>Food & Drink</h4>
+                    <p>Culinary experiences</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="category-card animate-on-scroll">
+                    <div class="category-icon">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <h4>Sports</h4>
+                    <p>Athletic events</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Events Section -->
+<section id="events" class="container mb-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="section-title">Upcoming Events</h2>
+        </div>
+    </div>
+    
+    <div class="row" id="events-container">
+        {% for event in events %}
+        <div class="col-lg-4 col-md-6 mb-4 event-item">
+            <div class="event-card card h-100 animate-on-scroll">
+                {% if event.source == 'django' %}
+                <span class="event-badge">Featured</span>
+                {% endif %}
+                <img src="https://source.unsplash.com/random/600x400/?event,{{ forloop.counter }}" class="card-img-top" alt="{{ event.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ event.name }}</h5>
+                    <div class="event-meta">
+                        <p class="mb-2">
+                            <i class="fas fa-calendar-alt"></i> {{ event.date|date:"Y-m-d H:i" }}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-map-marker-alt"></i> {{ event.location }}
+                        </p>
+                    </div>
+                    
+                    {% if event.price > 0 %}
+                    <div class="event-price">${{ event.price|floatformat:2 }}</div>
+                    {% else %}
+                    <div class="event-price">Free</div>
+                    {% endif %}
+                    
+                    <div class="event-capacity">
+                        <span>{{ event.available_seats }}</span>
+                        <div class="capacity-bar">
+                            <div class="capacity-fill" style="width: {{ event.available_seats|divisibleby:event.capacity|default:0|floatformat:0 }}%"></div>
+                        </div>
+                        <span>{{ event.capacity }}</span>
+                    </div>
+                    
+                    <p class="card-text">{{ event.description|truncatechars:100 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-info-circle me-1"></i> Details
+                        </a>
+                        {% if user.is_authenticated %}
+                            <form action="{% url 'book_event' event.id %}" method="POST" class="booking-form">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary" 
+                                    {% if event.available_seats <= 0 %}disabled{% endif %}>
+                                    {% if event.available_seats > 0 %}
+                                    <i class="fas fa-ticket-alt me-1"></i> Book Now
+                                    {% else %}
+                                    <i class="fas fa-ban me-1"></i> Sold Out
+                                    {% endif %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-1"></i> Login to Book
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle fa-2x mb-3"></i>
+                <h4>No events available at the moment.</h4>
+                <p>Please check back later for upcoming events.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Newsletter Section -->
+    <div class="row mt-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card animate-on-scroll">
+                <div class="card-body text-center py-5">
+                    <h3 class="mb-4">Stay Updated with Latest Events</h3>
+                    <p class="mb-4">Subscribe to our newsletter and never miss an event!</p>
+                    <form class="row g-3 justify-content-center">
+                        <div class="col-md-8">
+                            <input type="email" class="form-control" placeholder="Your email address">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search functionality
+        const searchInput = document.getElementById('event-search');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const eventCards = document.querySelectorAll('.event-item');
+            
+            eventCards.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const description = card.querySelector('.card-text').textContent.toLowerCase();
+                const location = card.querySelector('.fa-map-marker-alt').parentNode.textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm) || location.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+        
+        // Animation on scroll
+        const animateElements = document.querySelectorAll('.animate-on-scroll');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        animateElements.forEach(element => {
+            observer.observe(element);
+        });
+        
+        // Random animation for some event cards
+        const eventCards = document.querySelectorAll('.event-card');
+        eventCards.forEach((card, index) => {
+            if (index % 3 === 0) {
+                setTimeout(() => {
+                    card.classList.add('animate-card');
+                }, index * 200);
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Profile - {{ user.username }} - Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        padding: 4rem 0;
+    }
+    
+    .profile-header {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1511988617509-a57c8a288659?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+        border-radius: 15px;
+        position: relative;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 5px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        margin-bottom: 1.5rem;
+        object-fit: cover;
+    }
+    
+    .profile-name {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .profile-email {
+        font-size: 1.1rem;
+        opacity: 0.8;
+        margin-bottom: 1.5rem;
+    }
+    
+    .profile-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1.5rem;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .profile-card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .card-header {
+        background-color: var(--dark-color);
+        color: white;
+        padding: 1.25rem;
+        border-bottom: none;
+    }
+    
+    .card-header h3 {
+        margin-bottom: 0;
+        font-weight: 600;
+    }
+    
+    .booking-item, .review-item {
+        padding: 1.25rem;
+        border-bottom: 1px solid #eee;
+        transition: all 0.3s ease;
+    }
+    
+    .booking-item:last-child, .review-item:last-child {
+        border-bottom: none;
+    }
+    
+    .booking-item:hover, .review-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .booking-title, .review-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .booking-meta, .review-meta {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+    
+    .booking-meta i, .review-meta i {
+        color: var(--primary-color);
+        margin-right: 0.5rem;
+    }
+    
+    .badge {
+        padding: 0.5em 1em;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+    
+    .rating {
+        color: var(--warning-color);
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .review-content {
+        font-style: italic;
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+    }
+    
+    .profile-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .profile-action-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .profile-action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Animation */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in-up {
+        animation: fadeInUp 0.5s ease-out forwards;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="profile-header text-center animate__animated animate__fadeIn">
+            <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=random&size=120" alt="{{ user.username }}" class="profile-avatar">
+            <h1 class="profile-name">{{ user.username }}</h1>
+            <p class="profile-email">{{ user.email }}</p>
+            
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <div class="stat-value">{{ bookings|length }}</div>
+                    <div class="stat-label">Bookings</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ reviews|length }}</div>
+                    <div class="stat-label">Reviews</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ user.date_joined|date:"Y" }}</div>
+                    <div class="stat-label">Member Since</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Bookings Section -->
+            <div class="col-lg-6">
+                <div class="profile-card animate__animated animate__fadeInLeft">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3><i class="fas fa-ticket-alt me-2"></i> My Bookings</h3>
+                        <a href="{% url 'user_bookings' %}" class="btn btn-sm btn-outline-light">View All</a>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if bookings %}
+                            <div class="booking-list">
+                                {% for booking in bookings|slice:":3" %}
+                                    <div class="booking-item fade-in-up" style="animation-delay: {{ forloop.counter0|divisibleby:5 }}s;">
+                                        <h5 class="booking-title">{{ booking.event.name }}</h5>
+                                        <div class="booking-meta">
+                                            <p class="mb-1">
+                                                <i class="fas fa-calendar-alt"></i> {{ booking.event.date|date:"Y-m-d H:i" }}
+                                            </p>
+                                            <p class="mb-1">
+                                                <i class="fas fa-map-marker-alt"></i> {{ booking.event.location }}
+                                            </p>
+                                            <p class="mb-1">
+                                                <i class="fas fa-clock"></i> Booked on: {{ booking.booking_date|date:"Y-m-d" }}
+                                            </p>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="booking-status">
+                                                <span class="badge badge-{{ booking.status|lower }}">{{ booking.status }}</span>
+                                            </div>
+                                            {% if booking.event.id %}
+                                            <a href="{% url 'event_detail' booking.event.id %}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-info-circle me-1"></i> View Event
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="p-4 text-center">
+                                <p>You haven't booked any events yet.</p>
+                                <a href="{% url 'home' %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-search me-1"></i> Browse Events
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="col-lg-6">
+                <div class="profile-card animate__animated animate__fadeInRight">
+                    <div class="card-header">
+                        <h3><i class="fas fa-star me-2"></i> My Reviews</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if reviews %}
+                            <div class="review-list">
+                                {% for review in reviews %}
+                                    <div class="review-item fade-in-up" style="animation-delay: {{ forloop.counter0|divisibleby:5 }}s;">
+                                        <h5 class="review-title">{{ review.event.name }}</h5>
+                                        <div class="rating">
+                                            {% with ''|center:review.rating as range %}
+                                                {% for _ in range %}★{% endfor %}
+                                            {% endwith %}
+                                            {% with ''|center:5|slice:review.rating as range %}
+                                                {% for _ in range %}☆{% endfor %}
+                                            {% endwith %}
+                                        </div>
+                                        <p class="review-content">{{ review.content }}</p>
+                                        <div class="review-meta">
+                                            <p class="mb-0">
+                                                <i class="fas fa-clock"></i> Reviewed on {{ review.created_at|date:"Y-m-d" }}
+                                            </p>
+                                        </div>
+                                        <div class="text-end mt-2">
+                                            <a href="{% url 'event_detail' review.event.id %}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-info-circle me-1"></i> View Event
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="p-4 text-center">
+                                <p>You haven't reviewed any events yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Actions -->
+        <div class="profile-actions animate__animated animate__fadeInUp">
+            <a href="{% url 'home' %}" class="btn btn-primary profile-action-btn">
+                <i class="fas fa-search me-2"></i> Browse Events
+            </a>
+            <a href="#" class="btn btn-outline-primary profile-action-btn">
+                <i class="fas fa-cog me-2"></i> Account Settings
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation for items
+        const items = document.querySelectorAll('.booking-item, .review-item');
+        items.forEach((item, index) => {
+            setTimeout(() => {
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+    });
+</script>
+{% endblock %}

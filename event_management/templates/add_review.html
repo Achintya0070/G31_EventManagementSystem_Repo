@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add Review - Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .review-container {
+        padding: 4rem 0;
+    }
+    
+    .review-card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .review-header {
+        background-color: var(--dark-color);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .review-icon {
+        font-size: 4rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .review-body {
+        padding: 2.5rem;
+    }
+    
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .star-rating input {
+        display: none;
+    }
+    
+    .star-rating label {
+        cursor: pointer;
+        font-size: 2.5rem;
+        color: #ddd;
+        transition: all 0.3s ease;
+        margin: 0 5px;
+    }
+    
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input:checked ~ label {
+        color: var(--warning-color);
+    }
+    
+    .review-form textarea {
+        border-radius: 10px;
+        padding: 1rem;
+        min-height: 150px;
+        resize: vertical;
+    }
+    
+    .review-form textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(255, 87, 34, 0.25);
+    }
+    
+    .review-submit-btn {
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .review-submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .review-tips {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .review-tips h5 {
+        color: var(--dark-color);
+        margin-bottom: 1rem;
+    }
+    
+    .review-tips ul {
+        padding-left: 1.5rem;
+    }
+    
+    .review-tips li {
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Animation */
+    @keyframes starPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    
+    .star-pulse {
+        animation: starPulse 1s ease-in-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="review-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="review-card animate__animated animate__fadeIn">
+                    <div class="review-header">
+                        <div class="review-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h2>Share Your Experience</h2>
+                        <p class="mb-0">Your feedback helps others make better decisions</p>
+                    </div>
+                    <div class="review-body">
+                        <form method="POST" action="" class="review-form">
+                            {% csrf_token %}
+                            
+                            <div class="star-rating mb-4">
+                                <input type="radio" id="star5" name="rating" value="5" />
+                                <label for="star5" class="star" data-value="5"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star4" name="rating" value="4" />
+                                <label for="star4" class="star" data-value="4"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star3" name="rating" value="3" />
+                                <label for="star3" class="star" data-value="3"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star2" name="rating" value="2" />
+                                <label for="star2" class="star" data-value="2"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="star1" name="rating" value="1" />
+                                <label for="star1" class="star" data-value="1"><i class="fas fa-star"></i></label>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                <label for="review-content" class="form-label">Your Review</label>
+                                <textarea id="review-content" name="content" class="form-control" placeholder="Share your experience with this event..." required></textarea>
+                            </div>
+                            
+                            {{ form.as_p }}
+                            
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary review-submit-btn">
+                                    <i class="fas fa-paper-plane me-2"></i> Submit Review
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="review-tips">
+                            <h5><i class="fas fa-lightbulb me-2"></i> Tips for a Great Review</h5>
+                            <ul>
+                                <li>Share your personal experience with the event</li>
+                                <li>Mention what you liked and what could be improved</li>
+                                <li>Be honest, specific, and constructive</li>
+                                <li>Keep it friendly and respectful</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stars = document.querySelectorAll('.star');
+        
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                console.log('Selected rating:', value);
+                
+                // Add pulse animation
+                this.classList.add('star-pulse');
+                setTimeout(() => {
+                    this.classList.remove('star-pulse');
+                }, 1000);
+            });
+        });
+        
+        // Form validation
+        const form = document.querySelector('.review-form');
+        form.addEventListener('submit', function(e) {
+            const rating = document.querySelector('input[name="rating"]:checked');
+            const content = document.getElementById('review-content');
+            
+            if (!rating) {
+                e.preventDefault();
+                alert('Please select a rating');
+                return false;
+            }
+            
+            if (!content.value.trim()) {
+                e.preventDefault();
+                alert('Please write your review');
+                content.focus();
+                return false;
+            }
+            
+            return true;
+        });
+    });
+</script>
+{% endblock %}

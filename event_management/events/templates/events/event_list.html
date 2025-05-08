@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>All Events</h2>
+    <div class="row">
+        {% for event in events %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{% url 'event_detail' event.id %}">{{ event.name }}</a>
+                        </h5>
+                        <p class="card-text">
+                            {{ event.description|truncatewords:30 }}
+                            <br>Date: {{ event.date }}
+                            <br>Location: {{ event.location }}
+                            <br>Available Seats: {{ event.available_seats }}/{{ event.capacity }}
+                            <br>Price: ${{ event.price|floatformat:2 }}
+                        </p>
+                        <small class="text-muted">Source: {{ event.source }}</small>
+                        {% if user.is_authenticated %}
+                            <div class="mt-3">
+                                <form action="{% url 'book_event' event.id %}" method="POST" class="booking-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary" {% if event.available_seats <= 0 %}disabled{% endif %}>
+                                        {% if event.available_seats > 0 %}Book Now{% else %}Sold Out{% endif %}
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <p>No events available at the moment.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

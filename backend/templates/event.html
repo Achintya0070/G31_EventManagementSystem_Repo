@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="event-detail mt-4">
+    <h1>{{ event.name }}</h1>
+    <p><strong>Description:</strong> {{ event.description }}</p>
+    <p><strong>Date:</strong> {{ event.date }}</p>
+    <h3>Booking</h3>
+    <form action="{{ url_for('book_event', event_id=event.id) }}" method="POST">
+        <button type="submit" class="btn btn-primary">Book Now</button>
+    </form>
+</div>
+{% endblock %}

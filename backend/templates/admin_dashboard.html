@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Event Management System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="admin-header d-flex justify-content-between align-items-center mb-4">
+        <h1>Admin Dashboard</h1>
+        <a href="{{ url_for('create_event') }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Create New Event
+        </a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Events</h5>
+                    <h2 class="card-text">{{ events|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active Bookings</h5>
+                    <h2 class="card-text">{{ bookings|selectattr('status', 'equalto', 'confirmed')|list|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Reviews</h5>
+                    <h2 class="card-text">{{ reviews|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">User Queries</h5>
+                    <h2 class="card-text">{{ queries|length }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Management -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Events Management</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Capacity</th>
+                            <th>Available</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                        <tr>
+                            <td>{{ event.name }}</td>
+                            <td>{{ event.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ event.location }}</td>
+                            <td>{{ event.capacity }}</td>
+                            <td>{{ event.available_seats }}</td>
+                            <td>
+                                <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button class="btn btn-danger btn-sm" onclick="deleteEvent({{ event.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Latest Bookings -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Latest Bookings</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Event</th>
+                            <th>Booking Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.user.username }}</td>
+                            <td>{{ booking.event.name }}</td>
+                            <td>{{ booking.booking_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <span class="badge badge-{{ booking.status }}">
+                                    {{ booking.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-success btn-sm" onclick="updateBookingStatus({{ booking.id }}, 'confirmed')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="updateBookingStatus({{ booking.id }}, 'cancelled')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Queries -->
+    <div class="card">
+        <div class="card-header">
+            <h3>User Queries</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Query</th>
+                            <th>Response</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for query in queries %}
+                        <tr>
+                            <td>{{ query.user.username }}</td>
+                            <td>{{ query.content }}</td>
+                            <td>{{ query.response or 'No response yet' }}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" onclick="respondToQuery({{ query.id }})">
+                                    <i class="fas fa-reply"></i> Respond
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function deleteEvent(eventId) {
+    if (confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+        fetch(`/event/${eventId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting event: ' + data.message);
+            }
+        });
+    }
+}
+
+function updateBookingStatus(bookingId, status) {
+    fetch(`/booking/${bookingId}/update`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error updating booking: ' + data.message);
+        }
+    });
+}
+
+function respondToQuery(queryId) {
+    const response = prompt('Enter your response:');
+    if (response) {
+        fetch(`/query/${queryId}/respond`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ response })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error responding to query: ' + data.message);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.badge {
+    padding: 0.5em 1em;
+    border-radius: 4px;
+}
+
+.badge-confirmed {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.badge-cancelled {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.badge-completed {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.table th {
+    background-color: #f8f9fa;
+}
+
+.btn-group-sm > .btn,
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+</style>
+{% endblock %}
